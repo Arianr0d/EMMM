@@ -1,7 +1,7 @@
 #include<iostream>
 #include<vector>
 #include<cmath>
-#include <random>
+//#include <random>
 using namespace std;
 
 long double Function_dt(long double r,int lambda) {
@@ -42,38 +42,57 @@ int main() {
 			t_pr[i] = t_pr[i - 1] + dt[i];
 			work[i] = true;
 
-			for (int k = 0; k < j; k++) {
+			long double min = t_ko[i];
+			int count_out_work = 0;
+
+			for (int k = 0; k < i; k++) {
+				if (min >= t_ko[k] && work[k] == true) {
+					min = k;
+				}
+				if (t_pr[i] > t_ko[k]) {
+					work[k] = false;
+					count_out_work++;
+				}
 				if (t_pr[i] > t_ko[k] && work[k] == true) {
 					if (n_busy[i - 1] >= n && work[k] == true) {
-						n_busy[i] = n_busy[i - 1];
+						n_busy[i] = n_busy[i - 1] - count_out_work;
 						m_busy[i] = 0.;
 						N[i] = N[k];
 
 						work[k] = false;
+						t_no[i] = t_pr[i];
 						break;
 					}
 					else if (n_busy[i - 1] == n && m_busy[i - 1] > 0 && work[k] == true) {
-						n_busy[i] = n_busy[i - 1];
-						m_busy[i] = m_busy[i - 1];
+						if (m_busy[i - 1] - count_out_work < 0) {
+							n_busy[i] = n_busy[i - 1] + (m_busy[i - 1] - count_out_work);
+							m_busy[i] = 0.;
+						}
+						else {
+							n_busy[i] = n_busy[i - 1];
+							m_busy[i] = m_busy[i - 1] - count_out_work;
+						}
+						
 						N[i] = N[k];
-
 						work[k] = false;
+						t_no[i] = t_pr[i];
 						break;
 					}
 				}
 				if (k == (j - 1) && t_pr[i] <= t_ko[k]) {
 					if (n_busy[i - 1] < n) {
-						n_busy[i] = n_busy[i - 1] = 1;
+						n_busy[i] = n_busy[i - 1] + 1;
 						m_busy[i] = 0.;
+						
 						N[i] = N[k] + 1;
 					}
 					else if (n_busy[i - 1] == n && m_busy[i - 1] != m) {
 						n_busy[i] = n_busy[i - 1];
 						m_busy[i] = m_busy[i - 1] + 1;
 
-						//N[i] = N[k] + 1;
+						N[i] = N[min];
 					}
-					else if (n_busy[i - 1] == n && m_busy[i - 1] == (m - 1)) {
+					else if (n_busy[i - 1] == n && (m_busy[i - 1] == m - 1 || m_busy[i - 1] == m)) {
 						n_busy[i] = n;
 						m_busy[i] = m;
 
@@ -83,11 +102,11 @@ int main() {
 						t_obs[i] = 0.;
 						t_ko[i] = 0.;
 					}
+					t_no[i] = t_no[min];
 				}
 			}
 
-
-
+			t_ko[i] = t_no[i] + t_obs[i];
 		}
 	}
 }
