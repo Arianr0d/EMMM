@@ -96,13 +96,13 @@ int main() {
 				vector<int> n_del;						// номер канала, который перестаёт работать после j_k-ой заявки
 				vector<pair<double, int>> min_del;		// парный вектор из времени окончания работы канала и номера этого канала
 
-				for (int c = 0; c < n; ++c) {
+				for (int c = 0; c < _n; ++c) {
 					min_del.push_back(make_pair(n_busy[c].second, c));         // очищается ли min_del ------------?
 				}
 
 				sort(min_del.begin(), min_del.end());
 				
-				for (int k = 0; k < n - k_j; ++k) {
+				for (int k = 0; k < _n - k_j; ++k) {
 					n_busy[min_del[k].second].first = false;
 					n_busy[min_del[k].second].second = 10000;
 					n_del.push_back(min_del[k].second);
@@ -120,7 +120,7 @@ int main() {
 
 					}
 				}
-
+				n--;
 			}
 
 			if (i != 0) {           // а где для i == 0
@@ -129,7 +129,7 @@ int main() {
 				dt = Function_dt(r, lambda);				// расчёт интервала между прибытием соседних заявок
 				t_pr = t_pr + dt;							// расчёт времени прибытия текущей заявки
 
-				for (int k = 0; k < n; ++k) {
+				for (int k = 0; k < _n; ++k) {
 
 					if (t_pr >= n_busy[k].second && n_busy[k].first) {
 						n_busy[k].first = false;
@@ -170,7 +170,7 @@ int main() {
 			// есть свободные каналы
 			if (count_N_busy < n) {
 
-				for (int k = 0; k < n; ++k) {
+				for (int k = 0; k < _n; ++k) {
 
 					if (!n_busy[k].first && n_busy[k].second < 10000) {
 						t_no = t_pr;
